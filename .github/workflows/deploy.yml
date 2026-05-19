@@ -1,0 +1,38 @@
+name: Deploy to GitHub Pages
+on:
+  push:
+    branches:
+      - main
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout source repo
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      #- name: Setup pnpm
+      #  uses: pnpm/action-setup@v6
+
+      #- name: Install dependencies
+      #  run: pnpm ci
+
+      #- name: Build distribution
+      #  run: pnpm build
+
+      - name: Deploy to fbcss.github.io
+        run: |
+          git config user.name "sineorg"
+          git config user.email "sineorg@sineorg.github.io"
+          git config --unset-all http.https://github.com/.extraheader
+          rm -rf .github/ scripts/ node_modules/
+          rm -f .oxfmtrc.json .gitignore package.json pnpm-*.yaml script.js styles.css
+          git add .
+          git commit -m "Deploy latest changes"
+          git push --force "https://user:${{ secrets.CLONE_TOKEN }}@github.com/sineorg/sineorg.github.io.git" main
